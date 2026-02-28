@@ -1,0 +1,71 @@
+.templateReelsContainer {
+  --reel-item-height: 70px;
+  --reel-gap: 0.45rem;
+  --container-pad-top: 2.8rem;
+  --container-pad-bottom: 6.2rem;
+
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  padding: var(--container-pad-top) 1.8rem var(--container-pad-bottom);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  background: rgba(14, 14, 14, 0.45);
+
+  &__line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--container-pad-top) + var(--reel-item-height) + var(--reel-gap));
+    height: calc(var(--reel-item-height) + 4px);
+    border-top: 2px solid rgba(255, 197, 49, 0.75);
+    border-bottom: 2px solid rgba(255, 197, 49, 0.75);
+    pointer-events: none;
+  }
+
+  &__column {
+    width: 160px;
+    height: calc((var(--reel-item-height) * 3) + (var(--reel-gap) * 2));
+    position: relative;
+    z-index: 1;
+
+    .templateReel {
+      width: 100%;
+    }
+  }
+
+  &__controls {
+    position: absolute;
+    left: 50%;
+    top: calc(100% - 10px);
+    transform: translateX(-50%);
+    width: 80%;
+    display: grid;
+    gap: 0.35rem;
+
+    .btn {
+      width: 100%;
+      min-height: 34px;
+      padding: 0.4rem 0.55rem;
+      font-size: 0.86rem;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .templateReelsContainer {
+    gap: 0.45rem;
+    --container-pad-top: 2rem;
+    --container-pad-bottom: 5.4rem;
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+
+    &__controls .btn {
+      font-size: 0.72rem;
+      padding: 0.32rem 0.4rem;
+      min-height: 30px;
+    }
+  }
+}

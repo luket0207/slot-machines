@@ -1,0 +1,43 @@
+.templateReelItem {
+  height: 70px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background: #f3f3f3;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-weight: 700;
+  font-size: 1.3rem;
+
+  &--focused {
+    border-color: #ffc531;
+    box-shadow: 0 0 0 2px rgba(255, 197, 49, 0.5);
+    background: #fff9e5;
+  }
+
+  &__bonus {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.65rem;
+    color: #111;
+    background: #9ee26b;
+    border-radius: 999px;
+    padding: 0.1rem 0.35rem;
+    font-weight: 700;
+  }
+
+  &__held {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    font-size: 0.58rem;
+    color: #111;
+    background: #ffd76d;
+    border-radius: 999px;
+    padding: 0.1rem 0.3rem;
+    font-weight: 700;
+  }
+}

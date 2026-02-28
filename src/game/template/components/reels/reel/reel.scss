@@ -1,0 +1,9 @@
+.templateReel {
+  display: grid;
+  gap: 0.45rem;
+  width: 160px;
+
+  &--held {
+    filter: saturate(0.75);
+  }
+}

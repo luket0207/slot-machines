@@ -39,12 +39,16 @@ const Modal = ({
   title,
   content,
   buttons = MODAL_BUTTONS.OK,
+  flashModal = false,
+  duration = 2,
   customButtonText = "Submit",
   onClick,
   onYes,
   onNo,
   onClose,
 }) => {
+  const safeDurationSeconds = Math.max(0.1, Number(duration) || 2);
+
   const footerConfig = useMemo(() => {
     const safeClose = typeof onClose === "function" ? onClose : () => {};
 
@@ -59,7 +63,7 @@ const Modal = ({
     if (!isOpen) return;
 
     const onKeyDown = (e) => {
-      if (e.key === "Escape") footerConfig.safeClose();
+      if (!flashModal && e.key === "Escape") footerConfig.safeClose();
     };
 
     document.addEventListener("keydown", onKeyDown);
@@ -72,7 +76,18 @@ const Modal = ({
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
     };
-  }, [isOpen, footerConfig]);
+  }, [isOpen, footerConfig, flashModal]);
+
+  useEffect(() => {
+    if (!isOpen || !flashModal) return undefined;
+
+    const durationMs = safeDurationSeconds * 1000;
+    const timeout = setTimeout(() => {
+      footerConfig.safeClose();
+    }, durationMs);
+
+    return () => clearTimeout(timeout);
+  }, [flashModal, footerConfig, isOpen, safeDurationSeconds]);
 
   if (!isOpen) return null;
 
@@ -82,21 +97,37 @@ const Modal = ({
       role="presentation"
       onMouseDown={(e) => {
         // Close when clicking the backdrop only (not the modal itself)
-        if (e.target === e.currentTarget) footerConfig.safeClose();
+        if (!flashModal && e.target === e.currentTarget) footerConfig.safeClose();
       }}
     >
-      <div className="modal" role="dialog" aria-modal="true" aria-label={title || "Modal"}>
-        <div className="modal__header">
-          <div className="modal__title">{title || "Modal"}</div>
+      <div
+        className={`modal ${flashModal ? "modal--flash" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={flashModal ? "Flash Modal" : title || "Modal"}
+      >
+        {!flashModal && (
+          <div className="modal__header">
+            <div className="modal__title">{title || "Modal"}</div>
 
-          <button type="button" className="modal__close" onClick={footerConfig.safeClose} aria-label="Close modal">
-            <FontAwesomeIcon icon={faXmark} />
-          </button>
-        </div>
+            <button type="button" className="modal__close" onClick={footerConfig.safeClose} aria-label="Close modal">
+              <FontAwesomeIcon icon={faXmark} />
+            </button>
+          </div>
+        )}
 
-        <div className="modal__body">{content || <h2>Modal</h2>}</div>
+        {flashModal ? (
+          <div className="modal__body modal__body--flash" style={{ "--flash-duration": `${safeDurationSeconds}s` }}>
+            <div className="modalFlashContent">{content || <h2>Modal</h2>}</div>
+            <div className="modalFlashTimer" aria-hidden="true">
+              <span className="modalFlashTimer__fill" />
+            </div>
+          </div>
+        ) : (
+          <div className="modal__body">{content || <h2>Modal</h2>}</div>
+        )}
 
-        {buttons !== MODAL_BUTTONS.NONE && (
+        {!flashModal && buttons !== MODAL_BUTTONS.NONE && (
           <div className="modal__footer">
             {buttons === MODAL_BUTTONS.YES_NO && (
               <>

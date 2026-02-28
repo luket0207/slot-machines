@@ -1,0 +1,35 @@
+.templateScoreboard {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  height: 100%;
+  align-content: start;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  &__values {
+    display: flex;
+    gap: 1.5rem;
+
+    div {
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    span {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    strong {
+      color: #ffdd57;
+      font-size: 1.1rem;
+    }
+  }
+  &__result {
+    grid-column: 1 / -1;
+    font-size: 0.9rem;
+    min-height: 1.4rem;
+  }
+}

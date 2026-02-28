@@ -1,0 +1,28 @@
+@use "../../../../assets/scss/ui/import" as *;
+
+.templateStartScreen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at top, #3c5054, transparent 48%),
+    linear-gradient(160deg, #1c2428, #141a1d);
+
+  &__card {
+    width: min(480px, 100%);
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    display: grid;
+    gap: 1rem;
+    color: $lightText;
+  }
+
+  &__bankroll {
+    color: #ffd34e;
+    font-weight: 600;
+  }
+}

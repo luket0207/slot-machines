@@ -1,0 +1,18 @@
+/* eslint-disable react/prop-types */
+import Button, { BUTTON_VARIANT } from "../../../../engine/ui/button/button";
+import "./startScreen.scss";
+
+const StartScreen = ({ onStart, money }) => (
+  <section className="templateStartScreen">
+    <div className="templateStartScreen__card">
+      <h1>Template Slot Machine</h1>
+      <p>Press start to launch the reels.</p>
+      <p className="templateStartScreen__bankroll">Starting money: £{money.toFixed(2)}</p>
+      <Button variant={BUTTON_VARIANT.PRIMARY} onClick={onStart}>
+        Start Game
+      </Button>
+    </div>
+  </section>
+);
+
+export default StartScreen;

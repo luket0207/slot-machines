@@ -16,6 +16,8 @@ export const ModalProvider = ({ children }) => {
     title: "",
     content: null,
     buttons: MODAL_BUTTONS.OK,
+    flashModal: false,
+    duration: 2,
     customButtonText: "Submit",
     onClick: null,
     onYes: null,
@@ -29,6 +31,8 @@ export const ModalProvider = ({ children }) => {
       title: "",
       content: null,
       buttons: MODAL_BUTTONS.OK,
+      flashModal: false,
+      duration: 2,
       customButtonText: "Submit",
       onClick: null,
       onYes: null,
@@ -41,6 +45,8 @@ export const ModalProvider = ({ children }) => {
       modalTitle = "",
       modalContent = null,
       buttons = MODAL_BUTTONS.OK,
+      flashModal = false,
+      duration = 2,
       customButtonText = "Submit",
       onClick = null,
       onYes = null,
@@ -50,7 +56,9 @@ export const ModalProvider = ({ children }) => {
         isOpen: true,
         title: modalTitle,
         content: modalContent,
-        buttons,
+        buttons: flashModal ? MODAL_BUTTONS.NONE : buttons,
+        flashModal,
+        duration,
         customButtonText,
         onClick,
         onYes,
@@ -78,6 +86,8 @@ export const ModalProvider = ({ children }) => {
         title={modalState.title}
         content={modalState.content}
         buttons={modalState.buttons}
+        flashModal={modalState.flashModal}
+        duration={modalState.duration}
         customButtonText={modalState.customButtonText}
         onClick={modalState.onClick}
         onYes={modalState.onYes}

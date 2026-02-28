@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createInitialSlotMachineState } from "../../game/template/utils/stateFactory";
 
 /*
 Usage:
@@ -14,17 +15,8 @@ console.log(gameState.ui.top);
 
 const GameContext = createContext(null);
 
-const DEFAULT_GAME_STATE = Object.freeze({
-  player: {
-    health: 100,
-    money: 0,
-    progress: 0,
-  },
-  ui: {
-    top: "red",
-    mid: "green",
-    right: "blue",
-  },
+const createDefaultGameState = () => ({
+  slotMachine: createInitialSlotMachineState(),
 });
 
 const setByPath = (obj, path, value) => {
@@ -48,7 +40,7 @@ const setByPath = (obj, path, value) => {
 };
 
 export const GameProvider = ({ children }) => {
-  const [gameState, setGameState] = useState(DEFAULT_GAME_STATE);
+  const [gameState, setGameState] = useState(createDefaultGameState);
 
   // "POST" a single value by path, eg: setGameValue("player.health", 80)
   const setGameValue = useCallback((path, value) => {
@@ -62,14 +54,19 @@ export const GameProvider = ({ children }) => {
     setGameState(nextState);
   }, []);
 
+  const resetGameState = useCallback(() => {
+    setGameState(createDefaultGameState());
+  }, []);
+
   const value = useMemo(
     () => ({
       gameState,
       setGameState,
       setGameValue,
       loadGameState,
+      resetGameState,
     }),
-    [gameState, setGameValue, loadGameState]
+    [gameState, setGameValue, loadGameState, resetGameState]
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
