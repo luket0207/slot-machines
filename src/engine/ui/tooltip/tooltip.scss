@@ -168,21 +168,21 @@
 
 .tooltipBubble--info {
   background: #ffffff;
-  color: $darkText;
+  color: #1a1a1a;
 }
 
 /* Theme-mapped types (use global SCSS variables) */
 .tooltipBubble--primary {
-  background: $primaryBackground;
-  color: $primaryForeground;
+  background: $primary;
+  color: $textOnPrimary;
 }
 
 .tooltipBubble--secondary {
-  background: $secondaryBackground;
-  color: $secondaryForeground;
+  background: $secondary;
+  color: $textOnSecondary;
 }
 
 .tooltipBubble--tertiary {
-  background: $tertiaryBackground;
-  color: $tertiaryForeground;
+  background: $tertiary;
+  color: $textOnTertiary;
 }

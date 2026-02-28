@@ -7,7 +7,7 @@ const DebugPanel = ({ onDebugMoney, onDebugHold, onDebugNudges }) => (
     <h4>Debug</h4>
     <div className="templateDebugPanel__buttons">
       <Button variant={BUTTON_VARIANT.SECONDARY} onClick={onDebugMoney}>
-        +10 GBP
+        +{"\u00A3"}10
       </Button>
       <Button variant={BUTTON_VARIANT.TERTIARY} onClick={onDebugHold}>
         +1 Hold

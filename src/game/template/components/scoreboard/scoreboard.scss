@@ -1,3 +1,5 @@
+@use "../../../../assets/scss/ui/import" as *;
+
 .templateScoreboard {
   display: grid;
   gap: 1rem;
@@ -5,8 +7,8 @@
   height: 100%;
   align-content: start;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: color-mix(in srgb, $primaryBackground 80%, transparent);
+  border: 1px solid color-mix(in srgb, $textOnePrimaryBackground 20%, transparent);
 
   &__values {
     display: flex;
@@ -23,7 +25,7 @@
     }
 
     strong {
-      color: #ffdd57;
+      color: $backboardColour;
       font-size: 1.1rem;
     }
   }
@@ -31,5 +33,69 @@
     grid-column: 1 / -1;
     font-size: 0.9rem;
     min-height: 1.4rem;
+  }
+
+  &__prizes {
+    display: grid;
+    gap: 0.45rem;
+
+    h4 {
+      margin: 0;
+      font-size: 0.85rem;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+  }
+
+  &__prizeRows {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  &__prizeRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.28rem 0.35rem;
+    border-radius: 6px;
+    background: color-mix(in srgb, $secondaryBackground 42%, transparent);
+  }
+
+  &__prizeItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+
+    span {
+      font-size: 0.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__prizeIcon {
+    font-size: 0.85rem;
+  }
+
+  &__prizeImage {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+
+  &__prizeMeta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.74rem;
+
+    strong {
+      color: $backboardColour;
+      font-size: 0.76rem;
+    }
   }
 }

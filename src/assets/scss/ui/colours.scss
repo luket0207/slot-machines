@@ -1,20 +1,36 @@
-/* UI Colour Variables */
+:root {
+  --primaryBackground: #1b2d2f;
+  --textOnePrimaryBackground: #e9f6f3;
+  --secondaryBackground: #223c3d;
+  --textOneSecondaryBackground: #def1eb;
 
-/* Site Background */
-$siteBackground: #242424; // dark grey
+  --primary: #1ea89d;
+  --textOnPrimary: #03201d;
+  --secondary: #3fb37b;
+  --textOnSecondary: #082315;
+  --tertiary: #cae37a;
+  --textOnTertiary: #1f2a0f;
 
-/* Backgrounds */
-$primaryBackground: #115752;    // Teal
-$secondaryBackground: #2e7d64; // Lighter moss green
-$tertiaryBackground: #d5ceb5;   // Baige
+  --nudgeColour: #3f98ff;
+  --holdColour: #f04444;
+  --backboardColour: #f1c65b;
 
-/* Foregrounds */
-$primaryForeground: #ffffff;    // White text on primary
-$secondaryForeground: #ffffff;  // White text on secondary
-$tertiaryForeground: #115752;   // Teal text on tertiary
+  --themeBackground: radial-gradient(circle at top, rgba(255, 212, 84, 0.18), transparent 45%),
+    linear-gradient(180deg, #1f2a2f, #14181b);
+}
 
-/* Text */
+$primaryBackground: var(--primaryBackground);
+$textOnePrimaryBackground: var(--textOnePrimaryBackground);
+$secondaryBackground: var(--secondaryBackground);
+$textOneSecondaryBackground: var(--textOneSecondaryBackground);
 
-$darkText: #242424; // dark grey;
-$lightText: #ffffff;
-$links: #d5ceb5;
+$primary: var(--primary);
+$textOnPrimary: var(--textOnPrimary);
+$secondary: var(--secondary);
+$textOnSecondary: var(--textOnSecondary);
+$tertiary: var(--tertiary);
+$textOnTertiary: var(--textOnTertiary);
+
+$nudgeColour: var(--nudgeColour);
+$holdColour: var(--holdColour);
+$backboardColour: var(--backboardColour);

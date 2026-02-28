@@ -1,6 +1,8 @@
+import { useMemo } from "react";
 import StartScreen from "./components/startScreen/startScreen";
 import SlotScreen from "./components/slotScreen/slotScreen";
 import { useSlotMachineGame } from "./hooks/useSlotMachineGame";
+import { buildThemeStyleVars } from "./utils/slotConfig";
 import "./template.scss";
 
 const TemplateGame = () => {
@@ -20,12 +22,18 @@ const TemplateGame = () => {
     handleHiLoChoice,
   } = useSlotMachineGame();
 
+  const themeStyleVars = useMemo(() => buildThemeStyleVars(slotMachine.theme), [slotMachine.theme]);
+
   if (slotMachine.screen === "start") {
-    return <StartScreen onStart={startGame} money={slotMachine.money} />;
+    return (
+      <main className="templateGame" style={themeStyleVars}>
+        <StartScreen onStart={startGame} money={slotMachine.money} themeName={slotMachine.theme.name} />
+      </main>
+    );
   }
 
   return (
-    <main className="templateGame">
+    <main className="templateGame" style={themeStyleVars}>
       <SlotScreen
         slotMachine={slotMachine}
         onStakeChange={setStake}

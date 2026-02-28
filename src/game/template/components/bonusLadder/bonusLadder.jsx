@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./bonusLadder.scss";
 
 const BONUS_SPACES = 25;
@@ -6,10 +7,28 @@ const NUDGE_STEPS = new Set([18]);
 const HOLD_STEPS = new Set([7, 22]);
 const TRIGGER_STEPS = new Set([12, 25]);
 
-const BonusLadder = ({ value }) => (
+const renderBonusVisual = (bonusItem) => {
+  if (bonusItem?.image) {
+    return <img src={bonusItem.image} alt={bonusItem.name || "Bonus item"} />;
+  }
+
+  if (bonusItem?.icon) {
+    return <FontAwesomeIcon icon={bonusItem.icon} style={{ color: bonusItem.iconColor }} />;
+  }
+
+  return <span>B</span>;
+};
+
+const BonusLadder = ({ value, bonusItem }) => (
   <section className="templateBonusLadder">
     <div className="templateBonusLadder__header">
-      <h3>Bonus Ladder</h3>
+      <div className="templateBonusLadder__titles">
+        <h3>Bonus Ladder</h3>
+        <span className="templateBonusLadder__bonusItem">
+          <i>{renderBonusVisual(bonusItem)}</i>
+          {bonusItem?.name || "Bonus"}
+        </span>
+      </div>
       <strong>
         {value}/{BONUS_SPACES}
       </strong>

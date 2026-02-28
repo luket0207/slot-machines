@@ -36,7 +36,12 @@ const ReelsContainer = ({ slotMachine, onNudge, onToggleHold }) => {
 
         return (
           <div key={`reel-column-${reel.id}`} className="templateReelsContainer__column">
-            <Reel reel={reel} reelItemsById={reelItemsById} isHeld={Boolean(heldReels?.[idx])} />
+            <Reel
+              reel={reel}
+              reelItemsById={reelItemsById}
+              bonusItem={theme.bonusItem}
+              isHeld={Boolean(heldReels?.[idx])}
+            />
 
             <div className="templateReelsContainer__controls">
               {showNudges && (

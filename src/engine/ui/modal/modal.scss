@@ -38,8 +38,8 @@
   justify-content: space-between;
 
   padding: 0.9rem 1rem;
-  background: $primaryBackground;
-  color: $primaryForeground;
+  background: $primary;
+  color: $textOnPrimary;
 }
 
 .modal__title {
@@ -51,7 +51,7 @@
 .modal__close {
   border: none;
   background: transparent;
-  color: $primaryForeground;
+  color: $textOnPrimary;
 
   font-size: 1.5rem;
   line-height: 1;
@@ -125,7 +125,7 @@
   font-size: clamp(2.6rem, 7vw, 4.2rem);
   line-height: 1;
   font-weight: 800;
-  color: $primaryBackground;
+  color: $primary;
 }
 
 .modalFlashTimer {
@@ -134,7 +134,7 @@
   bottom: 1.25rem;
   width: 30px;
   height: 30px;
-  border: 2px solid $primaryBackground;
+  border: 2px solid $primary;
   border-radius: 50%;
   overflow: hidden;
   background: #ffffff;
@@ -146,8 +146,8 @@
   border-radius: 50%;
   background: conic-gradient(
     from 0deg,
-    rgba($primaryBackground, 0.32) var(--flash-progress),
-    rgba($primaryBackground, 0) 0deg
+    color-mix(in srgb, $primary 32%, transparent) var(--flash-progress),
+    color-mix(in srgb, $primary 0%, transparent) 0deg
   );
   animation: flashFill var(--flash-duration, 2s) linear forwards;
 }

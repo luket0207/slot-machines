@@ -1,0 +1,34 @@
+@use "../../../assets/scss/ui/import" as *;
+
+.fontAwesomeBackboard {
+  width: 100%;
+  min-height: 200px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(127, 205, 150, 0.18), transparent 48%),
+    linear-gradient(160deg, rgba(14, 34, 35, 0.84), rgba(17, 46, 42, 0.84));
+  color: $textOnePrimaryBackground;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 1rem;
+
+  &__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 0.86rem;
+    opacity: 0.85;
+    text-align: center;
+  }
+
+  &--active {
+    box-shadow: 0 0 0 2px rgba(120, 219, 171, 0.25) inset;
+  }
+}

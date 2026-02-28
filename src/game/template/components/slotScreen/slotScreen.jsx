@@ -5,6 +5,7 @@ import Scoreboard from "../scoreboard/scoreboard";
 import DebugPanel from "../debugPanel/debugPanel";
 import BonusLadder from "../bonusLadder/bonusLadder";
 import Backboard from "../backboard/backboard";
+import NumberSpinner from "../backboard/numberSpinner/numberSpinner";
 import "./slotScreen.scss";
 
 const SlotScreen = ({
@@ -32,14 +33,21 @@ const SlotScreen = ({
     <div className="templateSlotScreen__main">
       <DebugPanel onDebugMoney={onDebugMoney} onDebugHold={onDebugHold} onDebugNudges={onDebugNudges} />
 
-      <Backboard
-        spinner={slotMachine.backboardSpinner}
-        isActive={slotMachine.screen === "backboard"}
-        awaitingHiLoChoice={slotMachine.awaitingHiLoChoice}
-        onBackToSlots={onBackToSlots}
-      />
+      <div className="templateSlotScreen__backboardWrap">
+        <Backboard
+          isActive={slotMachine.screen === "backboard"}
+          awaitingHiLoChoice={slotMachine.awaitingHiLoChoice}
+          onBackToSlots={onBackToSlots}
+          BackboardComponent={slotMachine.theme.backboardComponent}
+        />
+        <NumberSpinner
+          value={slotMachine.backboardSpinner.value}
+          isSpinning={slotMachine.backboardSpinner.isSpinning}
+          className="templateSlotScreen__numberSpinner"
+        />
+      </div>
 
-      <BonusLadder value={slotMachine.bonusLadder} />
+      <BonusLadder value={slotMachine.bonusLadder} bonusItem={slotMachine.theme.bonusItem} />
 
       <ReelsContainer slotMachine={slotMachine} onNudge={onNudgeReel} onToggleHold={onToggleHold} />
 

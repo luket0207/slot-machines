@@ -1,8 +1,10 @@
+@use "../../../../assets/scss/ui/import" as *;
+
 .templateBonusLadder {
   padding: 0.9rem 1rem;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid color-mix(in srgb, $textOnePrimaryBackground 18%, transparent);
+  background: color-mix(in srgb, $secondaryBackground 76%, transparent);
   display: grid;
   gap: 0.75rem;
 
@@ -11,13 +13,39 @@
     justify-content: space-between;
     align-items: center;
 
+    strong {
+      color: $secondary;
+    }
+  }
+
+  &__titles {
+    display: grid;
+    gap: 0.2rem;
+
     h3 {
       font-size: 0.95rem;
       margin: 0;
     }
+  }
 
-    strong {
-      color: #a9ec7d;
+  &__bonusItem {
+    font-size: 0.72rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    i {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+    }
+
+    img {
+      width: 12px;
+      height: 12px;
+      object-fit: contain;
     }
   }
 
@@ -30,22 +58,22 @@
   &__step {
     height: 12px;
     border-radius: 2px;
-    background: rgba(255, 255, 255, 0.2);
+    background: color-mix(in srgb, $textOnePrimaryBackground 18%, transparent);
 
     &--filled {
-      background: #8de267;
+      background: $secondary;
     }
 
     &--nudge {
-      box-shadow: 0 0 0 2px #3f98ff inset;
+      box-shadow: 0 0 0 2px $nudgeColour inset;
     }
 
     &--hold {
-      box-shadow: 0 0 0 2px #f04444 inset;
+      box-shadow: 0 0 0 2px $holdColour inset;
     }
 
     &--trigger {
-      box-shadow: 0 0 0 2px rgba(255, 212, 90, 0.95) inset;
+      box-shadow: 0 0 0 2px $backboardColour inset;
     }
   }
 
@@ -54,7 +82,7 @@
     flex-wrap: wrap;
     gap: 0.8rem;
     font-size: 0.72rem;
-    color: rgba(255, 255, 255, 0.92);
+    color: color-mix(in srgb, $textOnePrimaryBackground 92%, transparent);
   }
 
   &__legendItem {
@@ -70,15 +98,15 @@
     display: inline-block;
 
     &--nudge {
-      background: #3f98ff;
+      background: $nudgeColour;
     }
 
     &--hold {
-      background: #f04444;
+      background: $holdColour;
     }
 
     &--trigger {
-      background: #e2bc67;
+      background: $backboardColour;
     }
   }
 }

@@ -1,3 +1,5 @@
+@use "../../../../assets/scss/ui/import" as *;
+
 .templateBackboard {
   display: grid;
   justify-items: center;
@@ -5,14 +7,14 @@
   text-align: center;
   padding: 1rem;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid color-mix(in srgb, $textOnePrimaryBackground 22%, transparent);
   background:
-    radial-gradient(circle at 20% 20%, rgba(255, 225, 131, 0.16), transparent 45%),
-    linear-gradient(150deg, #1d1925, #201c29 55%, #152021);
+    radial-gradient(circle at 20% 20%, color-mix(in srgb, $backboardColour 18%, transparent), transparent 45%),
+    linear-gradient(150deg, color-mix(in srgb, $secondaryBackground 85%, #000000), $primaryBackground 55%, #152021);
 
   &--active {
-    border-color: rgba(255, 225, 131, 0.8);
-    box-shadow: 0 0 0 2px rgba(255, 225, 131, 0.25) inset;
+    border-color: color-mix(in srgb, $backboardColour 78%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, $backboardColour 26%, transparent) inset;
   }
 
   &__header {
@@ -22,13 +24,26 @@
     h2 {
       margin: 0;
       font-size: 1.2rem;
-      color: #f7f7f7;
+      color: $textOnePrimaryBackground;
     }
 
     p {
       margin: 0;
       font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.85);
+      color: color-mix(in srgb, $textOnePrimaryBackground 86%, transparent);
     }
+  }
+
+  &__surface {
+    width: 100%;
+  }
+
+  &__placeholder {
+    margin: 0;
+    padding: 1.2rem 0.9rem;
+    border-radius: 8px;
+    background: color-mix(in srgb, $primaryBackground 80%, #000000);
+    color: $textOnePrimaryBackground;
+    font-size: 0.9rem;
   }
 }

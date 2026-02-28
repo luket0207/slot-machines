@@ -4,8 +4,8 @@
   font-family: $fontPrimary;
   line-height: 1.5;
   font-weight: 400;
-  color: $lightText;
-  background-color: $siteBackground;
+  color: $textOnePrimaryBackground;
+  background-color: $primaryBackground;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -16,7 +16,7 @@
 body {
   margin: 0;
   min-width: 320px;
-  background: $siteBackground;
+  background: var(--themeBackground);
 }
 
 #root {

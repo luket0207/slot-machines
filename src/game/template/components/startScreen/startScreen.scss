@@ -1,28 +1,26 @@
 @use "../../../../assets/scss/ui/import" as *;
 
 .templateStartScreen {
-  min-height: 100vh;
+  min-height: calc(100vh - 3rem);
   display: grid;
   place-items: center;
-  padding: 2rem;
-  background:
-    radial-gradient(circle at top, #3c5054, transparent 48%),
-    linear-gradient(160deg, #1c2428, #141a1d);
+  padding: 1.5rem;
+  background: transparent;
 
   &__card {
     width: min(480px, 100%);
-    background: rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: color-mix(in srgb, $primaryBackground 82%, #000000);
+    border: 1px solid color-mix(in srgb, $textOnePrimaryBackground 22%, transparent);
     border-radius: 12px;
     padding: 2rem;
     text-align: center;
     display: grid;
     gap: 1rem;
-    color: $lightText;
+    color: $textOnePrimaryBackground;
   }
 
   &__bankroll {
-    color: #ffd34e;
+    color: $backboardColour;
     font-weight: 600;
   }
 }

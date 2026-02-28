@@ -1,3 +1,5 @@
+@use "../../../../assets/scss/ui/import" as *;
+
 .templateReelsContainer {
   --reel-item-height: 70px;
   --reel-gap: 0.45rem;
@@ -10,9 +12,9 @@
   justify-content: center;
   position: relative;
   padding: var(--container-pad-top) 1.8rem var(--container-pad-bottom);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid color-mix(in srgb, $textOnePrimaryBackground 16%, transparent);
   border-radius: 12px;
-  background: rgba(14, 14, 14, 0.45);
+  background: color-mix(in srgb, $primaryBackground 86%, #000000);
 
   &__line {
     position: absolute;
@@ -20,8 +22,8 @@
     right: 0;
     top: calc(var(--container-pad-top) + var(--reel-item-height) + var(--reel-gap));
     height: calc(var(--reel-item-height) + 4px);
-    border-top: 2px solid rgba(255, 197, 49, 0.75);
-    border-bottom: 2px solid rgba(255, 197, 49, 0.75);
+    border-top: 2px solid color-mix(in srgb, $backboardColour 75%, transparent);
+    border-bottom: 2px solid color-mix(in srgb, $backboardColour 75%, transparent);
     pointer-events: none;
   }
 

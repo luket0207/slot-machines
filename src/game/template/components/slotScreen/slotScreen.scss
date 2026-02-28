@@ -11,10 +11,33 @@
     gap: 1rem;
     min-width: 0;
   }
+
+  &__backboardWrap {
+    position: relative;
+    padding-right: 5.2rem;
+  }
+
+  &__numberSpinner {
+    position: absolute;
+    right: -1rem;
+    bottom: -1rem;
+    width: 132px;
+    z-index: 2;
+  }
 }
 
 @media (max-width: 1000px) {
   .templateSlotScreen {
     grid-template-columns: 1fr;
+
+    &__backboardWrap {
+      padding-right: 4.2rem;
+    }
+
+    &__numberSpinner {
+      width: 110px;
+      right: -0.5rem;
+      bottom: -0.5rem;
+    }
   }
 }

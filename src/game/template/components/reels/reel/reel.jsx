@@ -3,7 +3,7 @@ import ReelItem from "../reelItem/reelItem";
 import { getVisibleIndexes } from "../../../utils/reelUtils";
 import "./reel.scss";
 
-const Reel = ({ reel, reelItemsById, isHeld }) => {
+const Reel = ({ reel, reelItemsById, bonusItem, isHeld }) => {
   const visibleIndexes = getVisibleIndexes(reel.index, reel.strip.length);
 
   return (
@@ -16,7 +16,8 @@ const Reel = ({ reel, reelItemsById, isHeld }) => {
         return (
           <ReelItem
             key={`${reel.id}-${stripIndex}-${rowIndex}`}
-            label={item?.label || "?"}
+            item={item}
+            bonusItem={bonusItem}
             isFocused={rowIndex === 1}
             hasBonus={hasBonus}
             isHeld={isHeld && rowIndex === 1}

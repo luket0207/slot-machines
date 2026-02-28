@@ -85,34 +85,34 @@
   }
 
   &--primary {
-    background-color: $primaryBackground;
-    color: $primaryForeground;
+    background-color: $primary;
+    color: $textOnPrimary;
 
     /* Keep text colour stable across link pseudo-states */
     &:visited,
     &:hover,
     &:active,
     &:focus {
-      color: $primaryForeground;
+      color: $textOnPrimary;
     }
   }
 
   &--secondary {
-    background-color: $secondaryBackground;
-    color: $secondaryForeground;
+    background-color: $secondary;
+    color: $textOnSecondary;
 
     /* Keep text colour stable across link pseudo-states */
     &:visited,
     &:hover,
     &:active,
     &:focus {
-      color: $secondaryForeground;
+      color: $textOnSecondary;
     }
   }
 
   &--tertiary {
-    background-color: $tertiaryBackground;
-    color: $tertiaryForeground;
+    background-color: $tertiary;
+    color: $textOnTertiary;
 
     /* Optional: a subtle border so it still reads as a button */
     border: 1px solid rgba(0, 0, 0, 0.18);
@@ -122,7 +122,7 @@
     &:hover,
     &:active,
     &:focus {
-      color: $tertiaryForeground;
+      color: $textOnTertiary;
     }
   }
 

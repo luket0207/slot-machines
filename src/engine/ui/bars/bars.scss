@@ -23,7 +23,7 @@
   width: var(--bars-fill);
   border-radius: 999px;
 
-  background: $primaryBackground;
+  background: $primary;
 
   /* Animate when current changes */
   transition: width 0.35s cubic-bezier(0.2, 0.9, 0.2, 1);
@@ -48,7 +48,7 @@
 
 /* Slightly different fill read for segmented version */
 .bars--segmented .bars__fill {
-  background: $secondaryBackground;
+  background: $secondary;
 }
 
 .bars__meta {

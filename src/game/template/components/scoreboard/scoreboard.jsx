@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatMoney } from "../../utils/formatters";
 import "./scoreboard.scss";
 
@@ -20,6 +21,34 @@ const Scoreboard = ({
       <div>
         <span>Nudges</span>
         <strong>{slotMachine.nudgesRemaining}</strong>
+      </div>
+    </div>
+
+    <div className="templateScoreboard__prizes">
+      <h4>Prize Breakdown</h4>
+      <div className="templateScoreboard__prizeRows">
+        {slotMachine.theme.reelItems
+          .slice()
+          .sort((a, b) => a.rank - b.rank)
+          .map((item) => (
+            <div key={`prize-${item.id}`} className="templateScoreboard__prizeRow">
+              <div className="templateScoreboard__prizeItem">
+                {item.icon && (
+                  <FontAwesomeIcon
+                    className="templateScoreboard__prizeIcon"
+                    icon={item.icon}
+                    style={{ color: item.iconColor || undefined }}
+                  />
+                )}
+                {item.image && <img className="templateScoreboard__prizeImage" src={item.image} alt={item.name} />}
+                <span>{item.name || item.label}</span>
+              </div>
+              <div className="templateScoreboard__prizeMeta">
+                <span>x{item.multiplier}</span>
+                <strong>{formatMoney(slotMachine.stake * item.multiplier)}</strong>
+              </div>
+            </div>
+          ))}
       </div>
     </div>
 
