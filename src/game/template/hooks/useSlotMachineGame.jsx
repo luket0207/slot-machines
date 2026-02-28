@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useGame } from "../../../engine/gameContext/gameContext";
 import { MODAL_BUTTONS, useModal } from "../../../engine/ui/modal/modalContext";
 import { createInitialSlotMachineState } from "../utils/stateFactory";
@@ -6,7 +7,7 @@ import { chooseNonMatchingStopItems, chooseWinningRank, getPayout } from "../uti
 import { getVisibleBonusCount, getVisibleIndexes, shuffleItems, wrapIndex } from "../utils/reelUtils";
 import { useNumberSpinner } from "./useNumberSpinner";
 
-const SPIN_STEP_MS = 85;
+const SPIN_STEP_MS = 55;
 const STOP_DELAYS = [900, 1250, 1600];
 const MIN_STAKE_TO_PLAY = 1;
 const REEL_SHUFFLE_BASE_DELAY = 240;
@@ -14,6 +15,7 @@ const REEL_SHUFFLE_STAGGER = 90;
 const HOLD_TOKEN_SPINS = 3;
 const BONUS_LADDER_MAX = 25;
 const FLASH_MODAL_DURATION_SECONDS = 2;
+const WIN_FLASH_DELAY_MS = 2000;
 
 const getMaxStakeForMoney = (money) => {
   if (money < 1) return 0;
@@ -123,6 +125,7 @@ export const useSlotMachineGame = () => {
 
   const setStake = useCallback(
     (stake) => {
+      if (slotMachine.winFlashActive) return;
       setGameState((prev) => ({
         ...prev,
         slotMachine: {
@@ -131,7 +134,7 @@ export const useSlotMachineGame = () => {
         },
       }));
     },
-    [setGameState]
+    [setGameState, slotMachine.winFlashActive]
   );
 
   const addDebugMoney = useCallback(() => {
@@ -184,6 +187,18 @@ export const useSlotMachineGame = () => {
     setScreen("slots");
   }, [setScreen]);
 
+  const renderWinVisual = useCallback((item) => {
+    if (item?.image) {
+      return <img className="modalFlashWin__visualImage" src={item.image} alt={item.name || item.label || "Win item"} />;
+    }
+
+    if (item?.icon) {
+      return <FontAwesomeIcon className="modalFlashWin__visualIcon" icon={item.icon} style={{ color: item.iconColor }} />;
+    }
+
+    return <span className="modalFlashWin__visualLabel">{item?.name || item?.label || "Win"}</span>;
+  }, []);
+
   const showFlashModal = useCallback(
     (modalContent, duration = FLASH_MODAL_DURATION_SECONDS) => {
       const safeDuration = Math.max(0.1, Number(duration) || FLASH_MODAL_DURATION_SECONDS);
@@ -199,6 +214,29 @@ export const useSlotMachineGame = () => {
     },
     [openModal]
   );
+
+  const flashReelsForWin = useCallback(() => {
+    setGameState((prev) => ({
+      ...prev,
+      slotMachine: {
+        ...prev.slotMachine,
+        winFlashActive: true,
+      },
+    }));
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        setGameState((prev) => ({
+          ...prev,
+          slotMachine: {
+            ...prev.slotMachine,
+            winFlashActive: false,
+          },
+        }));
+        resolve();
+      }, WIN_FLASH_DELAY_MS);
+    });
+  }, [setGameState]);
 
   const animateReels = useCallback(
     (stopItemIds, heldReels) =>
@@ -328,6 +366,8 @@ export const useSlotMachineGame = () => {
 
   const spin = useCallback(async () => {
     if (slotMachine.screen !== "slots" || slotMachine.isSpinning) return;
+    if (slotMachine.winFlashActive) return;
+    if (slotMachine.money < MIN_STAKE_TO_PLAY) return;
     if (slotMachine.awaitingHiLoChoice || slotMachine.nudgesRemaining > 0) return;
     if (slotMachine.money < slotMachine.stake) return;
 
@@ -354,6 +394,16 @@ export const useSlotMachineGame = () => {
     spinNumberSpinner({ min: 1, max: 10 });
     const finalReels = await animateReels(stopItemIds, heldReels);
 
+    // Stop reel motion immediately once physical spin is complete.
+    setGameState((prev) => ({
+      ...prev,
+      slotMachine: {
+        ...prev.slotMachine,
+        reels: finalReels,
+        isSpinning: false,
+      },
+    }));
+
     const { lineWin, matchedItem, payout } = evaluateLineWin(
       finalReels,
       slotMachine.theme.reelItems,
@@ -361,11 +411,10 @@ export const useSlotMachineGame = () => {
     );
 
     if (lineWin && payout > 0 && matchedItem) {
+      await flashReelsForWin();
       await showFlashModal(
         <div className="modalFlashWin">
-          <p className="modalFlashWin__text">
-            Win: {matchedItem.label} (reel item {matchedItem.rank})
-          </p>
+          <div className="modalFlashWin__visual">{renderWinVisual(matchedItem)}</div>
           <p className="modalFlashWin__amount">
             {"\u00A3"}
             {payout.toFixed(2)}
@@ -417,12 +466,22 @@ export const useSlotMachineGame = () => {
         },
       };
     });
-  }, [animateReels, resolveLadderRewards, setGameState, showFlashModal, slotMachine, spinNumberSpinner]);
+  }, [
+    animateReels,
+    flashReelsForWin,
+    renderWinVisual,
+    resolveLadderRewards,
+    setGameState,
+    showFlashModal,
+    slotMachine,
+    spinNumberSpinner,
+  ]);
 
   const nudgeReel = useCallback(
     async (reelId, direction) => {
       if (nudgeInProgressRef.current) return;
       if (slotMachine.screen !== "slots" || slotMachine.isSpinning) return;
+      if (slotMachine.winFlashActive) return;
       if (slotMachine.nudgesRemaining <= 0) return;
       if (slotMachine.heldReels[reelId]) return;
       nudgeInProgressRef.current = true;
@@ -462,21 +521,6 @@ export const useSlotMachineGame = () => {
         holdTokensAfterNudge,
       };
 
-      if (nudgeSnapshot.lineWin && nudgeSnapshot.payout > 0 && nudgeSnapshot.matchedItem) {
-        await showFlashModal(
-          <div className="modalFlashWin">
-            <p className="modalFlashWin__text">
-              Win: {nudgeSnapshot.matchedItem.label} (reel item {nudgeSnapshot.matchedItem.rank})
-            </p>
-            <p className="modalFlashWin__amount">
-              {"\u00A3"}
-              {nudgeSnapshot.payout.toFixed(2)}
-            </p>
-          </div>,
-          3
-        );
-      }
-
       setGameState((prev) => {
         const active = prev.slotMachine;
         if (active.screen !== "slots" || active.isSpinning) return prev;
@@ -494,6 +538,20 @@ export const useSlotMachineGame = () => {
           },
         };
       });
+
+      if (nudgeSnapshot.lineWin && nudgeSnapshot.payout > 0 && nudgeSnapshot.matchedItem) {
+        await flashReelsForWin();
+        await showFlashModal(
+          <div className="modalFlashWin">
+            <div className="modalFlashWin__visual">{renderWinVisual(nudgeSnapshot.matchedItem)}</div>
+            <p className="modalFlashWin__amount">
+              {"\u00A3"}
+              {nudgeSnapshot.payout.toFixed(2)}
+            </p>
+          </div>,
+          3
+        );
+      }
 
       try {
         const { holdsAwarded, nudgesAwarded, hiLoRequired } = await resolveLadderRewards(
@@ -543,7 +601,7 @@ export const useSlotMachineGame = () => {
         nudgeInProgressRef.current = false;
       }
     },
-    [resolveLadderRewards, setGameState, showFlashModal, slotMachine]
+    [flashReelsForWin, renderWinVisual, resolveLadderRewards, setGameState, showFlashModal, slotMachine]
   );
 
   const toggleHold = useCallback(
@@ -551,6 +609,7 @@ export const useSlotMachineGame = () => {
       setGameState((prev) => {
         const active = prev.slotMachine;
         if (active.screen !== "slots" || active.isSpinning) return prev;
+        if (active.winFlashActive) return prev;
         if (active.awaitingHiLoChoice && active.nudgesRemaining <= 0) return prev;
 
         const isHeld = active.heldReels[reelId];
@@ -580,6 +639,7 @@ export const useSlotMachineGame = () => {
       if (!slotMachine.awaitingHiLoChoice) return;
       if (slotMachine.nudgesRemaining > 0) return;
       if (slotMachine.screen !== "slots") return;
+      if (slotMachine.winFlashActive) return;
       if (slotMachine.backboardSpinner.isSpinning || slotMachine.isSpinning) return;
 
       const previousValue = slotMachine.backboardSpinner.value;
@@ -644,6 +704,8 @@ export const useSlotMachineGame = () => {
     () =>
       slotMachine.screen === "slots" &&
       !slotMachine.isSpinning &&
+      !slotMachine.winFlashActive &&
+      slotMachine.money >= MIN_STAKE_TO_PLAY &&
       !slotMachine.awaitingHiLoChoice &&
       slotMachine.nudgesRemaining <= 0 &&
       slotMachine.money >= slotMachine.stake,
@@ -654,6 +716,7 @@ export const useSlotMachineGame = () => {
       slotMachine.nudgesRemaining,
       slotMachine.screen,
       slotMachine.stake,
+      slotMachine.winFlashActive,
     ]
   );
 
@@ -662,6 +725,7 @@ export const useSlotMachineGame = () => {
       slotMachine.screen === "slots" &&
       slotMachine.awaitingHiLoChoice &&
       slotMachine.nudgesRemaining <= 0 &&
+      !slotMachine.winFlashActive &&
       !slotMachine.backboardSpinner.isSpinning &&
       !slotMachine.isSpinning,
     [
@@ -670,6 +734,7 @@ export const useSlotMachineGame = () => {
       slotMachine.isSpinning,
       slotMachine.nudgesRemaining,
       slotMachine.screen,
+      slotMachine.winFlashActive,
     ]
   );
 

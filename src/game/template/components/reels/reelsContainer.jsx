@@ -4,7 +4,7 @@ import Button, { BUTTON_VARIANT } from "../../../../engine/ui/button/button";
 import Reel from "./reel/reel";
 import "./reelsContainer.scss";
 
-const ReelsContainer = ({ slotMachine, onNudge, onToggleHold }) => {
+const ReelsContainer = ({ slotMachine, onNudge, onToggleHold, controlsDisabled = false }) => {
   const { reels, theme, heldReels } = slotMachine;
 
   const reelItemsById = useMemo(
@@ -21,13 +21,14 @@ const ReelsContainer = ({ slotMachine, onNudge, onToggleHold }) => {
   const holdsAvailable = slotMachine.holdTokens.length;
 
   return (
-    <section className="templateReelsContainer">
+    <section className={`templateReelsContainer ${slotMachine.winFlashActive ? "templateReelsContainer--winFlash" : ""}`}>
       <div className="templateReelsContainer__line" />
       {reels.map((reel, idx) => {
         const isHeld = slotMachine.heldReels[idx];
         const canNudge =
-          showNudges && !slotMachine.isSpinning && slotMachine.screen === "slots" && !isHeld;
+          showNudges && !controlsDisabled && !slotMachine.isSpinning && slotMachine.screen === "slots" && !isHeld;
         const canToggleHold =
+          !controlsDisabled &&
           !slotMachine.isSpinning &&
           slotMachine.screen === "slots" &&
           !(slotMachine.awaitingHiLoChoice && slotMachine.nudgesRemaining <= 0) &&
@@ -41,6 +42,7 @@ const ReelsContainer = ({ slotMachine, onNudge, onToggleHold }) => {
               reelItemsById={reelItemsById}
               bonusItem={theme.bonusItem}
               isHeld={Boolean(heldReels?.[idx])}
+              isSpinning={slotMachine.isSpinning && !Boolean(heldReels?.[idx])}
             />
 
             <div className="templateReelsContainer__controls">

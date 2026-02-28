@@ -111,13 +111,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.8rem;
 }
 
-.modalFlashWin__text {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
+.modalFlashWin__visual {
+  display: grid;
+  place-items: center;
+  min-height: 78px;
+}
+
+.modalFlashWin__visualIcon {
+  font-size: 4rem;
+}
+
+.modalFlashWin__visualImage {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.modalFlashWin__visualLabel {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: $primary;
 }
 
 .modalFlashWin__amount {

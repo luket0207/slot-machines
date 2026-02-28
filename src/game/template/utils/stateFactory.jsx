@@ -22,6 +22,7 @@ export const createInitialSlotMachineState = (themeConfig = {}) => {
       bonusPerReel: BONUS_POSITIONS_PER_REEL,
     }),
     isSpinning: false,
+    winFlashActive: false,
     spinCount: 0,
     bonusLadder: 0,
     awaitingHiLoChoice: false,

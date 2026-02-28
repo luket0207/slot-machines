@@ -13,13 +13,14 @@ const MainButtons = ({
   stakeOptions,
   onStakeChange,
   isStakeLocked,
+  isButtonsDisabled = false,
 }) => (
   <div className="templateMainButtons">
     <div className="templateMainButtons__left">
-      <Button variant={BUTTON_VARIANT.SECONDARY} onClick={onChooseHigher} disabled={!canChooseHiLo}>
+      <Button variant={BUTTON_VARIANT.SECONDARY} onClick={onChooseHigher} disabled={!canChooseHiLo || isButtonsDisabled}>
         Higher
       </Button>
-      <Button variant={BUTTON_VARIANT.SECONDARY} onClick={onChooseLower} disabled={!canChooseHiLo}>
+      <Button variant={BUTTON_VARIANT.SECONDARY} onClick={onChooseLower} disabled={!canChooseHiLo || isButtonsDisabled}>
         Lower
       </Button>
     </div>
@@ -32,7 +33,7 @@ const MainButtons = ({
               key={`stake-${option}`}
               variant={BUTTON_VARIANT.TERTIARY}
               onClick={() => onStakeChange(option)}
-              disabled={isStakeLocked}
+              disabled={isStakeLocked || isButtonsDisabled}
               className={`templateMainButtons__stakeButton ${
                 option === stake ? "templateMainButtons__stakeButton--selected" : ""
               }`}
@@ -46,7 +47,7 @@ const MainButtons = ({
       <Button
         variant={BUTTON_VARIANT.PRIMARY}
         onClick={onSpin}
-        disabled={!canSpin}
+        disabled={!canSpin || isButtonsDisabled}
         className="templateMainButtons__spinButton"
       >
         Spin

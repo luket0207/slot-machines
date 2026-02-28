@@ -22,48 +22,67 @@ const SlotScreen = ({
   canChooseHiLo,
   onNudgeReel,
   onToggleHold,
-}) => (
-  <section className="templateSlotScreen">
-    <Scoreboard
-      money={slotMachine.money}
-      lastSpin={slotMachine.lastSpin}
-      slotMachine={slotMachine}
-    />
+}) => {
+  const areButtonsDisabled = slotMachine.winFlashActive;
 
-    <div className="templateSlotScreen__main">
-      <DebugPanel onDebugMoney={onDebugMoney} onDebugHold={onDebugHold} onDebugNudges={onDebugNudges} />
+  return (
+    <section className="templateSlotScreen">
+      <Scoreboard
+        money={slotMachine.money}
+        lastSpin={slotMachine.lastSpin}
+        slotMachine={slotMachine}
+      />
 
-      <div className="templateSlotScreen__backboardWrap">
-        <Backboard
-          isActive={slotMachine.screen === "backboard"}
-          awaitingHiLoChoice={slotMachine.awaitingHiLoChoice}
-          onBackToSlots={onBackToSlots}
-          BackboardComponent={slotMachine.theme.backboardComponent}
+      <div className="templateSlotScreen__main">
+        <DebugPanel
+          onDebugMoney={onDebugMoney}
+          onDebugHold={onDebugHold}
+          onDebugNudges={onDebugNudges}
+          disabled={areButtonsDisabled}
         />
-        <NumberSpinner
-          value={slotMachine.backboardSpinner.value}
-          isSpinning={slotMachine.backboardSpinner.isSpinning}
-          className="templateSlotScreen__numberSpinner"
+
+        <div className="templateSlotScreen__backboardRow">
+          <div className="templateSlotScreen__backboardColumn">
+            <Backboard
+              isActive={slotMachine.screen === "backboard"}
+              awaitingHiLoChoice={slotMachine.awaitingHiLoChoice}
+              onBackToSlots={onBackToSlots}
+              BackboardComponent={slotMachine.theme.backboardComponent}
+            />
+          </div>
+          <div className="templateSlotScreen__spinnerColumn">
+            <NumberSpinner
+              value={slotMachine.backboardSpinner.value}
+              isSpinning={slotMachine.backboardSpinner.isSpinning}
+              className="templateSlotScreen__numberSpinner"
+            />
+          </div>
+        </div>
+
+        <BonusLadder value={slotMachine.bonusLadder} bonusItem={slotMachine.theme.bonusItem} />
+
+        <ReelsContainer
+          slotMachine={slotMachine}
+          onNudge={onNudgeReel}
+          onToggleHold={onToggleHold}
+          controlsDisabled={areButtonsDisabled}
+        />
+
+        <MainButtons
+          onSpin={onSpin}
+          canSpin={canSpin}
+          onChooseHigher={onChooseHigher}
+          onChooseLower={onChooseLower}
+          canChooseHiLo={canChooseHiLo}
+          stake={slotMachine.stake}
+          stakeOptions={slotMachine.stakeOptions}
+          onStakeChange={onStakeChange}
+          isStakeLocked={!canSpin || areButtonsDisabled}
+          isButtonsDisabled={areButtonsDisabled}
         />
       </div>
-
-      <BonusLadder value={slotMachine.bonusLadder} bonusItem={slotMachine.theme.bonusItem} />
-
-      <ReelsContainer slotMachine={slotMachine} onNudge={onNudgeReel} onToggleHold={onToggleHold} />
-
-      <MainButtons
-        onSpin={onSpin}
-        canSpin={canSpin}
-        onChooseHigher={onChooseHigher}
-        onChooseLower={onChooseLower}
-        canChooseHiLo={canChooseHiLo}
-        stake={slotMachine.stake}
-        stakeOptions={slotMachine.stakeOptions}
-        onStakeChange={onStakeChange}
-        isStakeLocked={!canSpin}
-      />
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default SlotScreen;

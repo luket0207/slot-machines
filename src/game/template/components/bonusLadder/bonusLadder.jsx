@@ -21,18 +21,14 @@ const renderBonusVisual = (bonusItem) => {
 
 const BonusLadder = ({ value, bonusItem }) => (
   <section className="templateBonusLadder">
-    <div className="templateBonusLadder__header">
-      <div className="templateBonusLadder__titles">
-        <h3>Bonus Ladder</h3>
-        <span className="templateBonusLadder__bonusItem">
-          <i>{renderBonusVisual(bonusItem)}</i>
-          {bonusItem?.name || "Bonus"}
-        </span>
-      </div>
-      <strong>
-        {value}/{BONUS_SPACES}
-      </strong>
-    </div>
+    <p className="templateBonusLadder__instruction">
+      Spin
+      <span className="templateBonusLadder__bonusItem">
+        <i>{renderBonusVisual(bonusItem)}</i>
+        {bonusItem?.name || "Bonus"}
+      </span>
+      into view to gain bonus points.
+    </p>
 
     <div className="templateBonusLadder__track">
       {Array.from({ length: BONUS_SPACES }, (_, idx) => idx + 1).map((step) => (
@@ -54,31 +50,19 @@ const BonusLadder = ({ value, bonusItem }) => (
           if (isNudge) rewardText = "Nudges";
           if (isHold) rewardText = "Hold";
           if (isTrigger) rewardText = "Backboard Check";
+          const marker = isTrigger ? "B" : isNudge ? "N" : isHold ? "H" : null;
 
           return (
             <span
               key={`bonus-step-${step}`}
               className={classes}
               title={`Step ${step}: ${rewardText}`}
-            />
+            >
+              {marker && <i className="templateBonusLadder__marker">{marker}</i>}
+            </span>
           );
         })()
       ))}
-    </div>
-
-    <div className="templateBonusLadder__legend">
-      <span className="templateBonusLadder__legendItem">
-        <i className="templateBonusLadder__dot templateBonusLadder__dot--nudge" />
-        Nudges
-      </span>
-      <span className="templateBonusLadder__legendItem">
-        <i className="templateBonusLadder__dot templateBonusLadder__dot--hold" />
-        Hold
-      </span>
-      <span className="templateBonusLadder__legendItem">
-        <i className="templateBonusLadder__dot templateBonusLadder__dot--trigger" />
-        Backboard Check
-      </span>
     </div>
   </section>
 );

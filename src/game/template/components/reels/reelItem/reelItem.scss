@@ -2,9 +2,9 @@
 
 .templateReelItem {
   height: 70px;
-  border: 1px solid color-mix(in srgb, $textOnePrimaryBackground 18%, transparent);
-  border-radius: 8px;
-  background: color-mix(in srgb, $textOneSecondaryBackground 92%, #f3f3f3);
+  border: none;
+  border-radius: 0;
+  background: transparent;
   color: $textOneSecondaryBackground;
   display: flex;
   align-items: center;
@@ -12,10 +12,12 @@
   position: relative;
   font-weight: 700;
 
+  + .templateReelItem {
+    border-top: 1px solid color-mix(in srgb, $primaryBackground 20%, transparent);
+  }
+
   &--focused {
-    border-color: color-mix(in srgb, $backboardColour 80%, transparent);
-    box-shadow: 0 0 0 2px color-mix(in srgb, $backboardColour 45%, transparent);
-    background: color-mix(in srgb, $backboardColour 12%, $textOneSecondaryBackground);
+    background: color-mix(in srgb, $backboardColour 8%, transparent);
   }
 
   &__content {
@@ -85,4 +87,8 @@
     padding: 0.1rem 0.3rem;
     font-weight: 700;
   }
+}
+
+.templateReel--spinning .templateReelItem--focused {
+  background: transparent;
 }
