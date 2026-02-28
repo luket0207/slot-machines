@@ -16,10 +16,11 @@ const SlotScreen = ({
   onDebugNudges,
   onSpin,
   canSpin,
-  onBackToSlots,
   onChooseHigher,
   onChooseLower,
   canChooseHiLo,
+  onRollBackboard,
+  canRollBackboard,
   onNudgeReel,
   onToggleHold,
 }) => {
@@ -46,7 +47,9 @@ const SlotScreen = ({
             <Backboard
               isActive={slotMachine.screen === "backboard"}
               awaitingHiLoChoice={slotMachine.awaitingHiLoChoice}
-              onBackToSlots={onBackToSlots}
+              hiLoContext={slotMachine.hiLoContext}
+              backboardTrail={slotMachine.backboardTrail}
+              backboardConfig={slotMachine.theme.backboardConfig}
               BackboardComponent={slotMachine.theme.backboardComponent}
             />
           </div>
@@ -54,6 +57,12 @@ const SlotScreen = ({
             <NumberSpinner
               value={slotMachine.backboardSpinner.value}
               isSpinning={slotMachine.backboardSpinner.isSpinning}
+              canChooseHiLo={canChooseHiLo}
+              onChooseHigher={onChooseHigher}
+              onChooseLower={onChooseLower}
+              canRollBackboard={canRollBackboard}
+              onRollBackboard={onRollBackboard}
+              controlsDisabled={areButtonsDisabled}
               className="templateSlotScreen__numberSpinner"
             />
           </div>
@@ -71,9 +80,6 @@ const SlotScreen = ({
         <MainButtons
           onSpin={onSpin}
           canSpin={canSpin}
-          onChooseHigher={onChooseHigher}
-          onChooseLower={onChooseLower}
-          canChooseHiLo={canChooseHiLo}
           stake={slotMachine.stake}
           stakeOptions={slotMachine.stakeOptions}
           onStakeChange={onStakeChange}

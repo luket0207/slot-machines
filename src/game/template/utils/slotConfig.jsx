@@ -87,6 +87,7 @@ export const normalizeTheme = (themeConfig = {}) => {
     colourScheme,
     background: mergedTheme.background || DEFAULT_THEME_BACKGROUND,
     backboardComponent: mergedTheme.backboardComponent || null,
+    backboardConfig: mergedTheme.backboardConfig || null,
   };
 };
 

@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Tooltip } from "primereact/tooltip";
 import "./bonusLadder.scss";
 
 const BONUS_SPACES = 25;
@@ -21,6 +22,8 @@ const renderBonusVisual = (bonusItem) => {
 
 const BonusLadder = ({ value, bonusItem }) => (
   <section className="templateBonusLadder">
+    <Tooltip target=".templateBonusLadder__tooltipTarget" position="top" />
+
     <p className="templateBonusLadder__instruction">
       Spin
       <span className="templateBonusLadder__bonusItem">
@@ -53,12 +56,16 @@ const BonusLadder = ({ value, bonusItem }) => (
           const marker = isTrigger ? "B" : isNudge ? "N" : isHold ? "H" : null;
 
           return (
-            <span
-              key={`bonus-step-${step}`}
-              className={classes}
-              title={`Step ${step}: ${rewardText}`}
-            >
-              {marker && <i className="templateBonusLadder__marker">{marker}</i>}
+            <span key={`bonus-step-${step}`} className={classes}>
+              {marker ? (
+                <span
+                  className="templateBonusLadder__tooltipTarget"
+                  data-pr-tooltip={rewardText}
+                  aria-label={rewardText}
+                >
+                  <i className="templateBonusLadder__marker">{marker}</i>
+                </span>
+              ) : null}
             </span>
           );
         })()

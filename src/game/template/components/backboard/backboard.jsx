@@ -1,36 +1,24 @@
 /* eslint-disable react/prop-types */
-import Button, { BUTTON_VARIANT } from "../../../../engine/ui/button/button";
 import "./backboard.scss";
 
-const Backboard = ({ isActive, awaitingHiLoChoice, onBackToSlots, BackboardComponent }) => {
-  const statusText = isActive
-    ? "Backboard active."
-    : awaitingHiLoChoice
-      ? "Ladder hit 12 or 25: choose Higher or Lower."
-      : "Backboard ready.";
-
+const Backboard = ({ isActive, backboardTrail, BackboardComponent, backboardConfig }) => {
   const ActiveBackboardComponent = BackboardComponent;
 
   return (
     <section className={`templateBackboard ${isActive ? "templateBackboard--active" : ""}`}>
-      <div className="templateBackboard__header">
-        <h2>Backboard</h2>
-        <p>{statusText}</p>
-      </div>
+      <p className="templateBackboard__instruction">Roll the spinner on the right to progress through the trail</p>
 
       <div className="templateBackboard__surface">
         {ActiveBackboardComponent ? (
-          <ActiveBackboardComponent isActive={isActive} />
+          <ActiveBackboardComponent
+            isActive={isActive}
+            backboardTrail={backboardTrail}
+            backboardConfig={backboardConfig}
+          />
         ) : (
           <p className="templateBackboard__placeholder">No backboard component set for this theme yet.</p>
         )}
       </div>
-
-      {isActive && (
-        <Button variant={BUTTON_VARIANT.PRIMARY} onClick={onBackToSlots}>
-          Return to Reels
-        </Button>
-      )}
     </section>
   );
 };

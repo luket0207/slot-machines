@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useGame } from "../../../engine/gameContext/gameContext";
 import { MODAL_BUTTONS, useModal } from "../../../engine/ui/modal/modalContext";
-import { createInitialSlotMachineState } from "../utils/stateFactory";
+import { createInitialBackboardTrailState, createInitialSlotMachineState } from "../utils/stateFactory";
 import { chooseNonMatchingStopItems, chooseWinningRank, getPayout } from "../utils/slotMath";
 import { getVisibleBonusCount, getVisibleIndexes, shuffleItems, wrapIndex } from "../utils/reelUtils";
 import { useNumberSpinner } from "./useNumberSpinner";
@@ -16,6 +16,7 @@ const HOLD_TOKEN_SPINS = 3;
 const BONUS_LADDER_MAX = 25;
 const FLASH_MODAL_DURATION_SECONDS = 2;
 const WIN_FLASH_DELAY_MS = 2000;
+const BACKBOARD_SPINNER_DURATION_MS = 900;
 
 const getMaxStakeForMoney = (money) => {
   if (money < 1) return 0;
@@ -102,26 +103,22 @@ const countNewlyVisibleBonusItems = (beforeReels, afterReels) => {
   return newlyVisibleCount;
 };
 
+const getBackboardTile = (theme, tileNumber) =>
+  theme?.backboardConfig?.tiles?.find((tile) => tile.tile === tileNumber) || null;
+
+const enterBackboardTrailState = (theme) => ({
+  ...createInitialBackboardTrailState(theme),
+  status: "awaiting_roll",
+});
+
 export const useSlotMachineGame = () => {
   const { gameState, setGameState } = useGame();
   const { openModal, closeModal } = useModal();
   const { spinNumberSpinner } = useNumberSpinner();
   const nudgeInProgressRef = useRef(false);
+  const backboardActionInProgressRef = useRef(false);
 
   const slotMachine = gameState.slotMachine;
-
-  const setScreen = useCallback(
-    (screen) => {
-      setGameState((prev) => ({
-        ...prev,
-        slotMachine: {
-          ...prev.slotMachine,
-          screen,
-        },
-      }));
-    },
-    [setGameState]
-  );
 
   const setStake = useCallback(
     (stake) => {
@@ -183,9 +180,18 @@ export const useSlotMachineGame = () => {
     }));
   }, [setGameState]);
 
-  const backToSlots = useCallback(() => {
-    setScreen("slots");
-  }, [setScreen]);
+  const returnToSlotsFromBackboard = useCallback(() => {
+    setGameState((prev) => ({
+      ...prev,
+      slotMachine: {
+        ...prev.slotMachine,
+        screen: "slots",
+        awaitingHiLoChoice: false,
+        hiLoContext: null,
+        backboardTrail: createInitialBackboardTrailState(prev.slotMachine.theme),
+      },
+    }));
+  }, [setGameState]);
 
   const renderWinVisual = useCallback((item) => {
     if (item?.image) {
@@ -209,10 +215,54 @@ export const useSlotMachineGame = () => {
       });
 
       return new Promise((resolve) => {
-        setTimeout(resolve, safeDuration * 1000 + 60);
+        setTimeout(() => {
+          closeModal();
+          resolve();
+        }, safeDuration * 1000 + 60);
       });
     },
-    [openModal]
+    [closeModal, openModal]
+  );
+
+  const promptYesNo = useCallback(
+    ({ title, content }) =>
+      new Promise((resolve) => {
+        openModal({
+          modalTitle: title,
+          modalContent: content,
+          buttons: MODAL_BUTTONS.YES_NO,
+          onYes: () => {
+            closeModal();
+            resolve(true);
+          },
+          onNo: () => {
+            closeModal();
+            resolve(false);
+          },
+        });
+      }),
+    [closeModal, openModal]
+  );
+
+  const applyMoneyDelta = useCallback(
+    (delta) => {
+      if (!delta) return;
+
+      setGameState((prev) => {
+        const active = prev.slotMachine;
+        const nextMoney = Math.max(0, active.money + delta);
+
+        return {
+          ...prev,
+          slotMachine: {
+            ...active,
+            money: nextMoney,
+            stake: getClampedStake(active.stake, nextMoney),
+          },
+        };
+      });
+    },
+    [setGameState]
   );
 
   const flashReelsForWin = useCallback(() => {
@@ -237,6 +287,269 @@ export const useSlotMachineGame = () => {
       }, WIN_FLASH_DELAY_MS);
     });
   }, [setGameState]);
+
+  const setBackboardTrailState = useCallback(
+    (trailPatch) => {
+      setGameState((prev) => ({
+        ...prev,
+        slotMachine: {
+          ...prev.slotMachine,
+          backboardTrail: {
+            ...prev.slotMachine.backboardTrail,
+            ...trailPatch,
+          },
+        },
+      }));
+    },
+    [setGameState]
+  );
+
+  const resolveBackboardLanding = useCallback(
+    async (initialTile) => {
+      const theme = slotMachine.theme;
+      const stake = slotMachine.stake;
+      const maxTile = theme?.backboardConfig?.maxTile || 50;
+      let tile = Math.max(1, Math.min(maxTile, initialTile));
+
+      while (true) {
+        const tileData = getBackboardTile(theme, tile);
+
+        setBackboardTrailState({
+          position: tile,
+          pendingHiLoTile: null,
+        });
+
+        if (!tileData || tileData.effect === "blank" || tileData.effect === "start") {
+          setBackboardTrailState({ status: "awaiting_roll" });
+          return { exited: false };
+        }
+
+        if (tileData.effect === "jump") {
+          await showFlashModal(
+            <p>
+              Tile {tile}: Jump Forward to tile {tileData.jumpTo}.
+            </p>
+          );
+          tile = tileData.jumpTo || tile;
+          continue;
+        }
+
+        if (tileData.effect === "hilo") {
+          await showFlashModal(<p>Tile {tile}: Higher or Lower. Choose on the spinner controls.</p>);
+          setGameState((prev) => ({
+            ...prev,
+            slotMachine: {
+              ...prev.slotMachine,
+              awaitingHiLoChoice: true,
+              hiLoContext: "backboard",
+              backboardTrail: {
+                ...prev.slotMachine.backboardTrail,
+                position: tile,
+                status: "awaiting_hilo",
+                pendingHiLoTile: tile,
+              },
+            },
+          }));
+          return { exited: false, awaitingChoice: true };
+        }
+
+        if (tileData.effect === "cashout_offer") {
+          const payout = stake * (tileData.multiplier || 0);
+          const cashOut = await promptYesNo({
+            title: `Tile ${tile}: ${tileData.text}`,
+            content: (
+              <p>
+                Cash out for {"\u00A3"}
+                {payout.toFixed(2)} and return to reels?
+              </p>
+            ),
+          });
+
+          if (cashOut) {
+            applyMoneyDelta(payout);
+            await showFlashModal(
+              <p>
+                Backboard cash out: {"\u00A3"}
+                {payout.toFixed(2)}
+              </p>
+            );
+            returnToSlotsFromBackboard();
+            return { exited: true };
+          }
+
+          await showFlashModal(<p>Stayed on the backboard. Roll again.</p>);
+          setBackboardTrailState({ status: "awaiting_roll" });
+          return { exited: false };
+        }
+
+        if (tileData.effect === "insta_win") {
+          const payout = stake * (tileData.multiplier || 0);
+          applyMoneyDelta(payout);
+          await showFlashModal(
+            <p>
+              Insta win: {"\u00A3"}
+              {payout.toFixed(2)}
+            </p>
+          );
+          setBackboardTrailState({ status: "awaiting_roll" });
+          return { exited: false };
+        }
+
+        if (tileData.effect === "pay_your_way") {
+          if (slotMachine.money < stake) {
+            await showFlashModal(<p>Not enough money to pay your way. Returning to reels.</p>);
+            returnToSlotsFromBackboard();
+            return { exited: true };
+          }
+
+          const payToStay = await promptYesNo({
+            title: `Tile ${tile}: Pay your way`,
+            content: (
+              <p>
+                Pay {"\u00A3"}
+                {stake.toFixed(2)} to continue on the board?
+              </p>
+            ),
+          });
+
+          if (!payToStay) {
+            await showFlashModal(<p>You left the backboard.</p>);
+            returnToSlotsFromBackboard();
+            return { exited: true };
+          }
+
+          applyMoneyDelta(-stake);
+          await showFlashModal(
+            <p>
+              Paid {"\u00A3"}
+              {stake.toFixed(2)}. Continue.
+            </p>
+          );
+          setBackboardTrailState({ status: "awaiting_roll" });
+          return { exited: false };
+        }
+
+        if (tileData.effect === "end") {
+          await showFlashModal(<p>End tile reached. Returning to reels.</p>);
+          returnToSlotsFromBackboard();
+          return { exited: true };
+        }
+
+        if (tileData.effect === "setback") {
+          await showFlashModal(<p>Setback tile. Rolling to move backward.</p>);
+          const setbackRoll = await spinNumberSpinner({
+            min: 1,
+            max: 10,
+            durationMs: BACKBOARD_SPINNER_DURATION_MS,
+          });
+          const setbackTarget = Math.max(1, tile - setbackRoll);
+          await showFlashModal(
+            <p>
+              Setback roll {setbackRoll}: move to tile {setbackTarget}.
+            </p>
+          );
+          tile = setbackTarget;
+          continue;
+        }
+
+        if (tileData.effect === "win_your_roll") {
+          await showFlashModal(<p>{tileData.text}: rolling now.</p>);
+          const winRoll = await spinNumberSpinner({
+            min: 1,
+            max: 10,
+            durationMs: BACKBOARD_SPINNER_DURATION_MS,
+          });
+          const payout = winRoll * (tileData.rollMultiplier || 1) * stake;
+          applyMoneyDelta(payout);
+          await showFlashModal(
+            <p>
+              Win your roll: {"\u00A3"}
+              {payout.toFixed(2)}
+            </p>
+          );
+          returnToSlotsFromBackboard();
+          return { exited: true };
+        }
+
+        if (tileData.effect === "jackpot") {
+          const payout = stake * (tileData.multiplier || 250);
+          applyMoneyDelta(payout);
+          await showFlashModal(
+            <p>
+              Jackpot: {"\u00A3"}
+              {payout.toFixed(2)}
+            </p>
+          );
+          returnToSlotsFromBackboard();
+          return { exited: true };
+        }
+
+        setBackboardTrailState({ status: "awaiting_roll" });
+        return { exited: false };
+      }
+    },
+    [
+      applyMoneyDelta,
+      promptYesNo,
+      returnToSlotsFromBackboard,
+      setBackboardTrailState,
+      setGameState,
+      showFlashModal,
+      slotMachine.money,
+      slotMachine.stake,
+      slotMachine.theme,
+      spinNumberSpinner,
+    ]
+  );
+
+  const rollBackboard = useCallback(async () => {
+    if (backboardActionInProgressRef.current) return;
+    if (slotMachine.screen !== "backboard") return;
+    if (slotMachine.awaitingHiLoChoice) return;
+    if (slotMachine.backboardSpinner.isSpinning || slotMachine.isSpinning) return;
+    if (slotMachine.winFlashActive) return;
+    if (slotMachine.backboardTrail.status !== "awaiting_roll") return;
+
+    backboardActionInProgressRef.current = true;
+    setBackboardTrailState({ status: "rolling" });
+
+    try {
+      const rollValue = await spinNumberSpinner({
+        min: 1,
+        max: 10,
+        durationMs: BACKBOARD_SPINNER_DURATION_MS,
+      });
+      const currentTile = slotMachine.backboardTrail.position || 1;
+      const maxTile = slotMachine.theme?.backboardConfig?.maxTile || 50;
+      const overflowTargetTile = slotMachine.theme?.backboardConfig?.overflowTargetTile || 35;
+      const rawTarget = currentTile + rollValue;
+      const targetTile = rawTarget > maxTile ? overflowTargetTile : rawTarget;
+
+      setBackboardTrailState({
+        position: targetTile,
+        lastRoll: rollValue,
+        status: "resolving",
+      });
+
+      if (rawTarget > maxTile) {
+        await showFlashModal(
+          <p>
+            Rolled {rollValue}. Passed tile {maxTile}, sent to tile {overflowTargetTile}.
+          </p>
+        );
+      } else {
+        await showFlashModal(
+          <p>
+            Rolled {rollValue}. Landed on tile {targetTile}.
+          </p>
+        );
+      }
+
+      await resolveBackboardLanding(targetTile);
+    } finally {
+      backboardActionInProgressRef.current = false;
+    }
+  }, [resolveBackboardLanding, setBackboardTrailState, showFlashModal, slotMachine, spinNumberSpinner]);
 
   const animateReels = useCallback(
     (stopItemIds, heldReels) =>
@@ -419,8 +732,7 @@ export const useSlotMachineGame = () => {
             {"\u00A3"}
             {payout.toFixed(2)}
           </p>
-        </div>,
-        3
+        </div>
       );
     }
 
@@ -449,6 +761,7 @@ export const useSlotMachineGame = () => {
           nudgesRemaining: active.nudgesRemaining + nudgesAwarded,
           holdTokens: [...active.holdTokens, ...Array.from({ length: holdsAwarded }, () => HOLD_TOKEN_SPINS)],
           awaitingHiLoChoice: hiLoRequired,
+          hiLoContext: hiLoRequired ? "ladder" : null,
           screen: "slots",
           lastSpin: {
             lineWin,
@@ -548,8 +861,7 @@ export const useSlotMachineGame = () => {
               {"\u00A3"}
               {nudgeSnapshot.payout.toFixed(2)}
             </p>
-          </div>,
-          3
+          </div>
         );
       }
 
@@ -563,7 +875,8 @@ export const useSlotMachineGame = () => {
           const active = prev.slotMachine;
           const nextMoney = active.money + nudgeSnapshot.payout;
           const nextStake = getClampedStake(active.stake, nextMoney);
-          const nextNudges = nudgeSnapshot.lineWin
+          const bonusRewardTriggered = holdsAwarded > 0 || nudgesAwarded > 0 || hiLoRequired;
+          const nextNudges = nudgeSnapshot.lineWin || bonusRewardTriggered
             ? nudgesAwarded
             : active.nudgesRemaining + nudgesAwarded;
 
@@ -580,6 +893,7 @@ export const useSlotMachineGame = () => {
               holdTokens: [...active.holdTokens, ...Array.from({ length: holdsAwarded }, () => HOLD_TOKEN_SPINS)],
               heldReels: nudgeSnapshot.heldReelsAfterNudge,
               awaitingHiLoChoice: active.awaitingHiLoChoice || hiLoRequired,
+              hiLoContext: active.awaitingHiLoChoice ? active.hiLoContext : hiLoRequired ? "ladder" : null,
               screen: "slots",
               lastSpin: {
                 lineWin: nudgeSnapshot.lineWin,
@@ -638,43 +952,85 @@ export const useSlotMachineGame = () => {
     async (choice) => {
       if (!slotMachine.awaitingHiLoChoice) return;
       if (slotMachine.nudgesRemaining > 0) return;
-      if (slotMachine.screen !== "slots") return;
+      if (slotMachine.hiLoContext === "ladder" && slotMachine.screen !== "slots") return;
+      if (slotMachine.hiLoContext === "backboard" && slotMachine.screen !== "backboard") return;
       if (slotMachine.winFlashActive) return;
       if (slotMachine.backboardSpinner.isSpinning || slotMachine.isSpinning) return;
 
       const previousValue = slotMachine.backboardSpinner.value;
-      const nextValue = await spinNumberSpinner({ min: 1, max: 10 });
+      const nextValue = await spinNumberSpinner({ min: 1, max: 10, durationMs: BACKBOARD_SPINNER_DURATION_MS });
       const hiLoWin =
         choice === "higher"
           ? nextValue > previousValue
           : choice === "lower"
             ? nextValue < previousValue
             : false;
+      const context = slotMachine.hiLoContext;
 
-      setGameState((prev) => ({
-        ...prev,
-        slotMachine: {
-          ...prev.slotMachine,
-          awaitingHiLoChoice: false,
-          screen: hiLoWin ? "backboard" : "slots",
-          lastSpin: {
-            ...prev.slotMachine.lastSpin,
-            bonusTriggered: hiLoWin,
-            hiLoRequired: true,
-            hiLoChoice: choice,
-            hiLoWin,
+      if (context === "ladder") {
+        if (hiLoWin) {
+          await showFlashModal(<p>Higher or Lower correct. Backboard unlocked.</p>);
+        } else {
+          await showFlashModal(<p>Higher or Lower missed. Continue on reels.</p>);
+        }
+
+        setGameState((prev) => ({
+          ...prev,
+          slotMachine: {
+            ...prev.slotMachine,
+            awaitingHiLoChoice: false,
+            hiLoContext: null,
+            screen: hiLoWin ? "backboard" : "slots",
+            backboardTrail: hiLoWin
+              ? enterBackboardTrailState(prev.slotMachine.theme)
+              : createInitialBackboardTrailState(prev.slotMachine.theme),
+            lastSpin: {
+              ...prev.slotMachine.lastSpin,
+              bonusTriggered: hiLoWin,
+              hiLoRequired: true,
+              hiLoChoice: choice,
+              hiLoWin,
+            },
           },
-        },
-      }));
+        }));
+        return;
+      }
+
+      if (context === "backboard") {
+        if (hiLoWin) {
+          await showFlashModal(<p>Correct. Stay on the backboard.</p>);
+          setGameState((prev) => ({
+            ...prev,
+            slotMachine: {
+              ...prev.slotMachine,
+              awaitingHiLoChoice: false,
+              hiLoContext: null,
+              backboardTrail: {
+                ...prev.slotMachine.backboardTrail,
+                status: "awaiting_roll",
+                pendingHiLoTile: null,
+              },
+            },
+          }));
+          return;
+        }
+
+        await showFlashModal(<p>Wrong guess. Returning to reels.</p>);
+        returnToSlotsFromBackboard();
+      }
     },
     [
+      returnToSlotsFromBackboard,
+      showFlashModal,
       setGameState,
+      slotMachine.hiLoContext,
       slotMachine.awaitingHiLoChoice,
       slotMachine.nudgesRemaining,
       slotMachine.screen,
       slotMachine.backboardSpinner.isSpinning,
       slotMachine.backboardSpinner.value,
       slotMachine.isSpinning,
+      slotMachine.winFlashActive,
       spinNumberSpinner,
     ]
   );
@@ -721,18 +1077,43 @@ export const useSlotMachineGame = () => {
   );
 
   const canChooseHiLo = useMemo(
+    () => {
+      const canInteract =
+        slotMachine.awaitingHiLoChoice &&
+        slotMachine.nudgesRemaining <= 0 &&
+        !slotMachine.winFlashActive &&
+        !slotMachine.backboardSpinner.isSpinning &&
+        !slotMachine.isSpinning;
+
+      if (!canInteract) return false;
+      if (slotMachine.hiLoContext === "ladder") return slotMachine.screen === "slots";
+      if (slotMachine.hiLoContext === "backboard") return slotMachine.screen === "backboard";
+      return false;
+    },
+    [
+      slotMachine.awaitingHiLoChoice,
+      slotMachine.backboardSpinner.isSpinning,
+      slotMachine.hiLoContext,
+      slotMachine.isSpinning,
+      slotMachine.nudgesRemaining,
+      slotMachine.screen,
+      slotMachine.winFlashActive,
+    ]
+  );
+
+  const canRollBackboard = useMemo(
     () =>
-      slotMachine.screen === "slots" &&
-      slotMachine.awaitingHiLoChoice &&
-      slotMachine.nudgesRemaining <= 0 &&
+      slotMachine.screen === "backboard" &&
+      slotMachine.backboardTrail.status === "awaiting_roll" &&
+      !slotMachine.awaitingHiLoChoice &&
       !slotMachine.winFlashActive &&
       !slotMachine.backboardSpinner.isSpinning &&
       !slotMachine.isSpinning,
     [
       slotMachine.awaitingHiLoChoice,
       slotMachine.backboardSpinner.isSpinning,
+      slotMachine.backboardTrail.status,
       slotMachine.isSpinning,
-      slotMachine.nudgesRemaining,
       slotMachine.screen,
       slotMachine.winFlashActive,
     ]
@@ -748,8 +1129,9 @@ export const useSlotMachineGame = () => {
     spin,
     nudgeReel,
     toggleHold,
+    rollBackboard,
     canSpin,
-    backToSlots,
+    canRollBackboard,
     canChooseHiLo,
     handleHiLoChoice,
   };

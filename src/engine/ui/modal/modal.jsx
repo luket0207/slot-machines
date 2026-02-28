@@ -50,14 +50,15 @@ const Modal = ({
   const safeDurationSeconds = Math.max(0.1, Number(duration) || 2);
 
   const footerConfig = useMemo(() => {
-    const safeClose = typeof onClose === "function" ? onClose : () => {};
+    const baseClose = typeof onClose === "function" ? onClose : () => {};
 
-    const okHandler = typeof onClick === "function" ? onClick : safeClose;
-    const yesHandler = typeof onYes === "function" ? onYes : safeClose;
-    const noHandler = typeof onNo === "function" ? onNo : safeClose;
+    const okHandler = typeof onClick === "function" ? onClick : baseClose;
+    const yesHandler = typeof onYes === "function" ? onYes : baseClose;
+    const noHandler = typeof onNo === "function" ? onNo : baseClose;
+    const safeClose = buttons === MODAL_BUTTONS.YES_NO ? noHandler : baseClose;
 
     return { okHandler, yesHandler, noHandler, safeClose };
-  }, [onClick, onYes, onNo, onClose]);
+  }, [buttons, onClick, onYes, onNo, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -82,12 +83,13 @@ const Modal = ({
     if (!isOpen || !flashModal) return undefined;
 
     const durationMs = safeDurationSeconds * 1000;
+    const closeFlash = typeof onClose === "function" ? onClose : () => {};
     const timeout = setTimeout(() => {
-      footerConfig.safeClose();
+      closeFlash();
     }, durationMs);
 
     return () => clearTimeout(timeout);
-  }, [flashModal, footerConfig, isOpen, safeDurationSeconds]);
+  }, [flashModal, isOpen, onClose, safeDurationSeconds]);
 
   if (!isOpen) return null;
 

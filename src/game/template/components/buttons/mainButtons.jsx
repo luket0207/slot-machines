@@ -6,9 +6,6 @@ import "./mainButtons.scss";
 const MainButtons = ({
   onSpin,
   canSpin,
-  onChooseHigher,
-  onChooseLower,
-  canChooseHiLo,
   stake,
   stakeOptions,
   onStakeChange,
@@ -16,15 +13,6 @@ const MainButtons = ({
   isButtonsDisabled = false,
 }) => (
   <div className="templateMainButtons">
-    <div className="templateMainButtons__left">
-      <Button variant={BUTTON_VARIANT.SECONDARY} onClick={onChooseHigher} disabled={!canChooseHiLo || isButtonsDisabled}>
-        Higher
-      </Button>
-      <Button variant={BUTTON_VARIANT.SECONDARY} onClick={onChooseLower} disabled={!canChooseHiLo || isButtonsDisabled}>
-        Lower
-      </Button>
-    </div>
-
     <div className="templateMainButtons__right">
       <div className="templateMainButtons__stake" role="radiogroup" aria-label="Stake">
         <div className="templateMainButtons__stakeButtons">

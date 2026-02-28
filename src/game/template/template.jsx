@@ -17,8 +17,9 @@ const TemplateGame = () => {
     nudgeReel,
     toggleHold,
     canSpin,
-    backToSlots,
     canChooseHiLo,
+    rollBackboard,
+    canRollBackboard,
     handleHiLoChoice,
   } = useSlotMachineGame();
 
@@ -42,10 +43,11 @@ const TemplateGame = () => {
         onDebugNudges={addDebugNudges}
         onSpin={spin}
         canSpin={canSpin}
-        onBackToSlots={backToSlots}
         canChooseHiLo={canChooseHiLo}
         onChooseHigher={() => handleHiLoChoice("higher")}
         onChooseLower={() => handleHiLoChoice("lower")}
+        onRollBackboard={rollBackboard}
+        canRollBackboard={canRollBackboard}
         onNudgeReel={nudgeReel}
         onToggleHold={toggleHold}
       />

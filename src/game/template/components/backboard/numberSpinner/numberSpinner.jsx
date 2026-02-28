@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import Button, { BUTTON_VARIANT } from "../../../../../engine/ui/button/button";
 import "./numberSpinner.scss";
 
 const SPINNER_MIN = 1;
@@ -10,13 +11,27 @@ const wrapSpinnerValue = (input) => {
   return input;
 };
 
-const NumberSpinner = ({ value, isSpinning, className = "" }) => {
+const NumberSpinner = ({
+  value,
+  isSpinning,
+  className = "",
+  canChooseHiLo = false,
+  onChooseHigher,
+  onChooseLower,
+  canRollBackboard = false,
+  onRollBackboard,
+  controlsDisabled = false,
+}) => {
   const currentValue = Number.isFinite(value) ? value : SPINNER_MIN;
   const windowValues = [
     wrapSpinnerValue(currentValue - 1),
     wrapSpinnerValue(currentValue),
     wrapSpinnerValue(currentValue + 1),
   ];
+  const showHiLo = !canRollBackboard;
+  const showRoll = canRollBackboard && !showHiLo;
+  const highlightControls =
+    (showRoll || canChooseHiLo) && !controlsDisabled && !isSpinning;
 
   return (
     <div
@@ -34,6 +49,42 @@ const NumberSpinner = ({ value, isSpinning, className = "" }) => {
             </div>
           ))}
         </div>
+      </div>
+
+      <div
+        className={`templateNumberSpinner__controls ${
+          highlightControls ? "templateNumberSpinner__controls--attention" : ""
+        }`}
+      >
+        {showHiLo && (
+          <div className="templateNumberSpinner__hiLoButtons">
+            <Button
+              variant={BUTTON_VARIANT.SECONDARY}
+              onClick={onChooseLower}
+              disabled={!canChooseHiLo || controlsDisabled || isSpinning}
+            >
+              Lower
+            </Button>
+            <Button
+              variant={BUTTON_VARIANT.SECONDARY}
+              onClick={onChooseHigher}
+              disabled={!canChooseHiLo || controlsDisabled || isSpinning}
+            >
+              Higher
+            </Button>
+          </div>
+        )}
+
+        {showRoll && (
+          <Button
+            variant={BUTTON_VARIANT.PRIMARY}
+            onClick={onRollBackboard}
+            disabled={!canRollBackboard || controlsDisabled || isSpinning}
+            className="templateNumberSpinner__rollButton"
+          >
+            Roll
+          </Button>
+        )}
       </div>
     </div>
   );

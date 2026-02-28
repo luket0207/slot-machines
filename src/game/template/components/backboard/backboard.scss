@@ -2,10 +2,12 @@
 
 .templateBackboard {
   display: grid;
+  grid-template-rows: auto 1fr;
   justify-items: center;
   gap: 0.8rem;
   text-align: center;
   padding: 1rem;
+  height: 360px;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, $textOnePrimaryBackground 22%, transparent);
   background:
@@ -17,25 +19,16 @@
     box-shadow: 0 0 0 2px color-mix(in srgb, $backboardColour 26%, transparent) inset;
   }
 
-  &__header {
-    display: grid;
-    gap: 0.25rem;
-
-    h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: $textOnePrimaryBackground;
-    }
-
-    p {
-      margin: 0;
-      font-size: 0.9rem;
-      color: color-mix(in srgb, $textOnePrimaryBackground 86%, transparent);
-    }
+  &__instruction {
+    margin: 0;
+    font-size: 0.86rem;
+    color: color-mix(in srgb, $textOnePrimaryBackground 90%, transparent);
+    text-align: center;
   }
 
   &__surface {
     width: 100%;
+    min-height: 0;
   }
 
   &__placeholder {

@@ -7,6 +7,15 @@ import {
 } from "./slotConfig";
 import { createReels } from "./reelUtils";
 
+export const createInitialBackboardTrailState = (theme) => ({
+  position: 1,
+  lastRoll: 0,
+  status: "idle",
+  pendingHiLoTile: null,
+  maxTile: theme?.backboardConfig?.maxTile || 50,
+  overflowTargetTile: theme?.backboardConfig?.overflowTargetTile || 35,
+});
+
 export const createInitialSlotMachineState = (themeConfig = {}) => {
   const theme = normalizeTheme(themeConfig);
 
@@ -26,9 +35,11 @@ export const createInitialSlotMachineState = (themeConfig = {}) => {
     spinCount: 0,
     bonusLadder: 0,
     awaitingHiLoChoice: false,
+    hiLoContext: null,
     nudgesRemaining: 0,
     holdTokens: [],
     heldReels: [false, false, false],
+    backboardTrail: createInitialBackboardTrailState(theme),
     backboardSpinner: {
       value: 1,
       isSpinning: false,

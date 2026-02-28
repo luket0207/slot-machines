@@ -12,6 +12,7 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import FontAwesomeBackboard from "./backboard";
+import { FONT_AWESOME_BACKBOARD_CONFIG } from "./backboardTrailConfig";
 
 const BASE_REEL_MATH = [
   { winRate: 10, multiplier: 1 },
@@ -39,7 +40,7 @@ export const themeSettings = {
     { id: "reelItem7", rank: 7, name: "Clover", icon: faClover, iconColor: "#57bf63" },
     { id: "reelItem8", rank: 8, name: "Gem", icon: faGem, iconColor: "#74d7ff" },
     { id: "reelItem9", rank: 9, name: "Crown", icon: faCrown, iconColor: "#f5c451" },
-    { id: "reelItem10", rank: 10, name: "Dice Six", icon: faDiceSix, iconColor: "#d08cff" },
+    { id: "reelItem10", rank: 10, name: "Dice", icon: faDiceSix, iconColor: "#d08cff" },
   ].map((item, idx) => ({
     ...item,
     label: item.name,
@@ -71,4 +72,5 @@ export const themeSettings = {
   background:
     "radial-gradient(circle at 14% 12%, rgba(67, 142, 130, 0.33), transparent 42%), radial-gradient(circle at 83% 18%, rgba(120, 98, 145, 0.18), transparent 38%), linear-gradient(168deg, #162226, #151a1f 62%, #11161b)",
   backboardComponent: FontAwesomeBackboard,
+  backboardConfig: FONT_AWESOME_BACKBOARD_CONFIG,
 };
